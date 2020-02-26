@@ -1,0 +1,57 @@
+#Download docker mysql image from docker hub using the bwelow commamnd . The we will run it as an individual application in container
+
+docker pull mysql
+
+docker run  -p 6033:3306 --name gaurav_mysql_standalone1 -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=test -e MYSQL_USER=sa -e MYSQL_PASSWORD=password -d mysql
+#Connect springboot application running locally to mysql running in docker container
+#Check application.properties file and check the port of DB :-
+#It is spring.datasource.url=jdbc:mysql://localhost:6033/test . Because we have hosted port 6033 for outside world while runnung the container.
+#DB name and all is given above
+
+# so far we have not build an image of springboot application . Lets run it . Remeber mysql is running as docker container
+
+http://localhost:5479/addUser
+http://localhost:5479/addUser
+http://localhost:5479/getUser
+
+# go to docker shell and run 
+docker exec -it gaurav_mysql_standalone1 bash
+ mysql -uroot -p 
+ 
+ # you will enter into mysql shell.
+ 
+ show databases;
+ select * from test.user;
+ 
+ # rows will be displayed
+ 
+ For exiting from bash .. type exit 
+ 
+ #Stop gaurav_mysql_standalone1 container and again start it . Go to sql shell again. All the exisitng rows will be present .
+ #So it means until we kill the container records will be stored in DB.
+ 
+ 
+ 
+ #Lets build a springboot image and try to run the application .
+ 1) Create a jar file using maven install . if want to update the name of jar then check the configuration tag in pom.xml.
+ 2) Change the db url to below 
+ spring.datasource.url=jdbc:mysql://gaurav_mysql_standalone1/test 
+ #Now docker container will interact with docker container.WHile maven install error will come so use maven:package to build jar
+ 
+ 2)Build an image
+  docker build . -t demo-mysql-docker 
+ 3) Run an image . Link is used to link image with already runnming mysql container
+ docker run -p 5479:5479 --name users-mysql1 --link gaurav_mysql_standalone1:mysql -d demo-mysql-docker1
+ 
+ 4) Check docker logs <containername>
+ 
+ 
+Running containers configuration as of now :-
+PS C:\Users\Gaurav Garg\Downloads\demo-mysql-docker\demo-mysql-docker> docker ps                                                                                                             CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS              PORTS                               NAMES
+74901f728399        demo-mysql-docker1   "java -jar demo-mysq…"   3 days ago          Up 6 minutes        0.0.0.0:5479->5479/tcp              users-mysql2
+c3256558439e        mysql                "docker-entrypoint.s…"   3 days ago          Up 46 minutes       33060/tcp, 0.0.0.0:6033->3306/tcp   gaurav_mysql_standalone1
+ 
+ 
+
+ 
+
